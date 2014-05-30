@@ -4,6 +4,43 @@ Package benchkit is the lightweight, feather touch, benchmarking kit.
 In comparison to the standard pprof utilities, this package is meant to
 help generating graphs and other artifacts.
 
+## Quick!
+
+Benchmark your code!
+
+```go
+memkit, results := benchkit.Memory(n)
+
+memkit.Setup()
+files := GenTarFiles(n, size)
+memkit.Starting()
+each := memkit.Each()
+tarw := tar.NewWriter(buf)
+for i, file := range files {
+    each.Before(i)
+    _ = tarw.WriteHeader(file.TarHeader())
+    _, _ = tarw.Write(file.Data())
+    each.After(i)
+}
+_ = tarw.Close()
+
+memkit.Teardown()
+```
+
+Plot your benchmark!
+
+```go
+// Plot the results !
+p, _ := benchplot.PlotMemory(
+    fmt.Sprintf("archive/tar memory usage for %n files of %s", n, humanize.Bytes(uint64(size))),
+    "files in archive",
+    results,
+)
+_ = p.Save(8, 6, "tar_benchplot.png")
+```
+
+![Plot of the memory usage of ](exampleplot.png)
+
 ## Usage
 
 Get a benchmark kit:
@@ -65,10 +102,27 @@ Using `result` before `Teardown` will result in:
 
 So don't do that. =)
 
-## Memory kit
+## Kits
+
+### Memory
 
 Collects memory allocation during the benchmark, using `runtime.ReadMemStats`.
 
+## Plot
+
+Have a look at [`benchplot`](benchplot/)! Quickly plot memory stats!
+
+```go
+```go
+// Plot the results !
+p, _ := benchplot.PlotMemory(
+    fmt.Sprintf("archive/tar memory usage for %n files of %s", n, humanize.Bytes(uint64(size))),
+    "files in archive",
+    results,
+)
+_ = p.Save(8, 6, "tar_benchplot.png")
+```
+```
 
 ## More kits
 

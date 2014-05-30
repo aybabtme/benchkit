@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/aybabtme/benchkit"
+	"github.com/aybabtme/benchkit/benchplot"
 	"github.com/dustin/go-humanize"
 	"github.com/dustin/randbo"
 	"os"
@@ -37,6 +38,7 @@ func ExampleMemory() {
 
 	memkit.Teardown()
 
+	// Look at the results!
 	fmt.Printf("setup=%s\n", effectMem(results.Setup))
 	fmt.Printf("starting=%s\n", effectMem(results.Start))
 
@@ -49,7 +51,14 @@ func ExampleMemory() {
 	}
 	fmt.Printf("teardown=%s\n", effectMem(results.Teardown))
 
-	fmt.Printf("buflen=%d", buf.Len())
+	// Plot the results !
+	p, _ := benchplot.PlotMemory(
+		fmt.Sprintf("archive/tar memory usage for %n files of %s", n, humanize.Bytes(uint64(size))),
+		"files in archive",
+		results,
+	)
+	_ = p.Save(8, 6, "tar_benchplot.png")
+
 	// Output:
 	// setup=4.1MB
 	// starting=9.8MB
@@ -59,7 +68,6 @@ func ExampleMemory() {
 	//   3  before=19MB  after=19MB
 	//   4  before=19MB  after=19MB
 	// teardown=29MB
-	// buflen=5005824
 }
 
 func effectMem(mem *runtime.MemStats) string {
