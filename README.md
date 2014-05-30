@@ -113,7 +113,6 @@ Collects memory allocation during the benchmark, using `runtime.ReadMemStats`.
 Have a look at [`benchplot`](benchplot/)! Quickly plot memory stats!
 
 ```go
-```go
 // Plot the results !
 p, _ := benchplot.PlotMemory(
     fmt.Sprintf("archive/tar memory usage for %n files of %s", n, humanize.Bytes(uint64(size))),
@@ -121,7 +120,6 @@ p, _ := benchplot.PlotMemory(
     results,
 )
 _ = p.Save(8, 6, "tar_benchplot.png")
-```
 ```
 
 ## More kits
