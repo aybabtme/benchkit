@@ -53,11 +53,11 @@ func ExampleMemory() {
 
 	// Plot the results !
 	p, _ := benchplot.PlotMemory(
-		fmt.Sprintf("archive/tar memory usage for %n files of %s", n, humanize.Bytes(uint64(size))),
+		fmt.Sprintf("archive/tar memory usage for %d files of %s", n, humanize.Bytes(uint64(size))),
 		"files in archive",
 		results,
 	)
-	_ = p.Save(8, 6, "tar_benchplot.png")
+	_ = p.Save(6, 4, "tar_benchplot.png")
 
 	// Output:
 	// setup=4.1MB
