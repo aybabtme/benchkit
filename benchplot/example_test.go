@@ -52,6 +52,40 @@ func ExamplePlotTime() {
 	//
 }
 
+func ExamplePlotTime_bench() {
+	n := 100
+	times := 100
+	size := int(1e6)
+	buf := bytes.NewBuffer(nil)
+
+	files := GenTarFiles(n, size)
+
+	results := benchkit.Bench(benchkit.Time(n, times)).Each(func(each benchkit.BenchEach) {
+		for repeat := 0; repeat < times; repeat++ {
+			buf.Reset()
+			tarw := tar.NewWriter(buf)
+			for j, file := range files {
+				each.Before(j)
+				_ = tarw.WriteHeader(file.TarHeader())
+				_, _ = tarw.Write(file.Data())
+				each.After(j)
+			}
+			_ = tarw.Close()
+		}
+
+	}).(*benchkit.TimeResult)
+
+	p, _ := PlotTime(
+		fmt.Sprintf("archive/tar time usage for %d files, %s each, over %d measurements", n, humanize.Bytes(uint64(size)), times),
+		"Files in archive",
+		results,
+	)
+	_ = p.Save(6, 4, "tar_timeplot.png")
+
+	// Output:
+	//
+}
+
 func ExamplePlotMemory() {
 	n := 100
 	size := int(1e6)
@@ -83,6 +117,38 @@ func ExamplePlotMemory() {
 		results,
 	)
 	_ = p.Save(6, 4, "tar_memplot.svg")
+
+	// Output:
+	//
+}
+
+func ExamplePlotMemory_bench() {
+
+	n := 100
+	size := int(1e6)
+	buf := bytes.NewBuffer(nil)
+
+	files := GenTarFiles(n, size)
+
+	results := benchkit.Bench(benchkit.Memory(n)).Each(func(each benchkit.BenchEach) {
+		buf.Reset()
+		tarw := tar.NewWriter(buf)
+		for j, file := range files {
+			each.Before(j)
+			_ = tarw.WriteHeader(file.TarHeader())
+			_, _ = tarw.Write(file.Data())
+			each.After(j)
+		}
+		_ = tarw.Close()
+
+	}).(*benchkit.MemResult)
+
+	p, _ := PlotMemory(
+		fmt.Sprintf("archive/tar memory usage for %d files, %s each", n, humanize.Bytes(uint64(size))),
+		"Files in archive",
+		results,
+	)
+	_ = p.Save(6, 4, "tar_memplot.png")
 
 	// Output:
 	//

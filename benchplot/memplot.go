@@ -35,25 +35,25 @@ var memlines = []struct {
 		Name:   "current heap size",
 		Filter: func(mem *runtime.MemStats) float64 { return float64(mem.HeapAlloc) },
 		Width:  0.5,
-		Color:  pickDark(),
+		Color:  color.RGBA{44, 123, 182, 255},
 	},
 	{
 		Name:   "total heap size",
 		Filter: func(mem *runtime.MemStats) float64 { return float64(mem.HeapSys) },
 		Width:  0.5,
-		Color:  pickDark(),
+		Color:  color.RGBA{171, 217, 233, 255},
 	},
 	{
 		Name:   "memory allocated from OS",
 		Filter: func(mem *runtime.MemStats) float64 { return float64(mem.Sys) },
 		Width:  0.5,
-		Color:  pickDark(),
+		Color:  color.RGBA{253, 174, 97, 255},
 	},
 	{
-		Name:   "effective memory consumption of the program",
+		Name:   "effective memory consumption",
 		Filter: func(mem *runtime.MemStats) float64 { return float64(mem.Sys - mem.HeapReleased) },
 		Width:  0.5,
-		Color:  pickDark(),
+		Color:  color.RGBA{215, 25, 28, 255},
 	},
 }
 
@@ -72,7 +72,7 @@ func PlotMemory(title, xLabel string, results *benchkit.MemResult) (*plot.Plot, 
 	}
 
 	p.Title.Text = title
-	p.Y.Label.Text = "Memory usage"
+	p.Y.Label.Text = "Memory usage (log10)"
 	p.Y.Tick.Marker = readableBytes(plot.LogTicks)
 	p.Y.Scale = plot.LogScale
 	p.X.Label.Text = xLabel
