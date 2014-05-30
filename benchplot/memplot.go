@@ -25,7 +25,7 @@ func pickSoft() color.Color {
 	return plotutil.SoftColors[softIdx]
 }
 
-var datalines = []struct {
+var memlines = []struct {
 	Name   string
 	Filter func(mem *runtime.MemStats) float64
 	Width  float64
@@ -73,12 +73,13 @@ func PlotMemory(title, xLabel string, results *benchkit.MemResult) (*plot.Plot, 
 
 	p.Title.Text = title
 	p.Y.Label.Text = "Memory usage"
-	p.Y.Tick.Marker = readableBytes(p.Y.Tick.Marker)
+	p.Y.Tick.Marker = readableBytes(plot.LogTicks)
+	p.Y.Scale = plot.LogScale
 	p.X.Label.Text = xLabel
 
 	p.Add(plotter.NewGrid())
 
-	for _, data := range datalines {
+	for _, data := range memlines {
 		line, err := plotter.NewLine(mapResult(data.Filter, results.AfterEach))
 		if err != nil {
 			return nil, err

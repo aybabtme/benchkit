@@ -49,7 +49,7 @@ some overhead and thus, will reduce the precision of your benchmark results.
 The `result` object given with your `bench` object will not be
 populated before your call to `Teardown`.:
 
-    bench, result := MemBenchKit(n)
+    bench, result := benchkit.Memory(n)
     // don't use `result`
     bench.Teardown()
     // now you can use `result`

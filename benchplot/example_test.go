@@ -1,4 +1,4 @@
-package benchkit_test
+package benchplot
 
 import (
 	"archive/tar"
@@ -13,35 +13,48 @@ import (
 	"time"
 )
 
-func ExampleBench() {
-	mem := benchkit.Bench(benchkit.Memory(10)).Each(func(each benchkit.BenchEach) {
-		for i := 0; i < 10; i++ {
-			each.Before(i)
-			// do stuff
-			each.After(i)
+func ExamplePlotTime() {
+	n := 100
+	times := 100
+	size := int(1e6)
+	buf := bytes.NewBuffer(nil)
+
+	timekit, results := benchkit.Time(n, times)
+
+	timekit.Setup()
+	files := GenTarFiles(n, size)
+	timekit.Starting()
+
+	each := timekit.Each()
+
+	for i := 0; i < times; i++ {
+		buf.Reset()
+		tarw := tar.NewWriter(buf)
+		for j, file := range files {
+			each.Before(j)
+			_ = tarw.WriteHeader(file.TarHeader())
+			_, _ = tarw.Write(file.Data())
+			each.After(j)
 		}
+		_ = tarw.Close()
+	}
 
-	}).(*benchkit.MemResult)
+	timekit.Teardown()
 
-	_ = mem
+	p, _ := PlotTime(
+		fmt.Sprintf("archive/tar time usage for %d files, %s each, over %d measurements", n, humanize.Bytes(uint64(size)), times),
+		"Files in archive",
+		results,
+	)
+	_ = p.Save(6, 4, "tar_timeplot.svg")
 
-	times := benchkit.Bench(benchkit.Time(10, 100)).Each(func(each benchkit.BenchEach) {
-		for repeat := 0; repeat < 100; repeat++ {
-			for i := 0; i < 10; i++ {
-				each.Before(i)
-				// do stuff
-				each.After(i)
-			}
-		}
-
-	}).(*benchkit.TimeResult)
-
-	_ = times
+	// Output:
+	//
 }
 
-func ExampleMemory() {
-	n := 5
-	size := 1000000
+func ExamplePlotMemory() {
+	n := 100
+	size := int(1e6)
 	buf := bytes.NewBuffer(nil)
 
 	memkit, results := benchkit.Memory(n)
@@ -52,39 +65,27 @@ func ExampleMemory() {
 
 	each := memkit.Each()
 
+	buf.Reset()
 	tarw := tar.NewWriter(buf)
-	for i, file := range files {
-		each.Before(i)
+	for j, file := range files {
+		each.Before(j)
 		_ = tarw.WriteHeader(file.TarHeader())
 		_, _ = tarw.Write(file.Data())
-		each.After(i)
+		each.After(j)
 	}
 	_ = tarw.Close()
 
 	memkit.Teardown()
 
-	// Look at the results!
-	fmt.Printf("setup=%s\n", effectMem(results.Setup))
-	fmt.Printf("starting=%s\n", effectMem(results.Start))
-
-	for i := 0; i < results.N; i++ {
-		fmt.Printf("  %d  before=%s  after=%s\n",
-			i,
-			effectMem(results.BeforeEach[i]),
-			effectMem(results.AfterEach[i]),
-		)
-	}
-	fmt.Printf("teardown=%s\n", effectMem(results.Teardown))
+	p, _ := PlotMemory(
+		fmt.Sprintf("archive/tar memory usage for %d files, %s each", n, humanize.Bytes(uint64(size))),
+		"Files in archive",
+		results,
+	)
+	_ = p.Save(6, 4, "tar_memplot.svg")
 
 	// Output:
-	// setup=4.1MB
-	// starting=9.8MB
-	//   0  before=9.8MB  after=11MB
-	//   1  before=11MB  after=13MB
-	//   2  before=13MB  after=19MB
-	//   3  before=19MB  after=19MB
-	//   4  before=19MB  after=19MB
-	// teardown=29MB
+	//
 }
 
 func effectMem(mem *runtime.MemStats) string {
