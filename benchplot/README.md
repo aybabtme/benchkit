@@ -1,6 +1,6 @@
 # benchplot
 
-Plotinum helper for `benchkit`.
+Plotinum helpers for `benchkit`.
 
 # PlotMemory
 

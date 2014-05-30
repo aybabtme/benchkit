@@ -27,19 +27,33 @@ _ = tarw.Close()
 memkit.Teardown()
 ```
 
-Plot your benchmark!
+Plot your benchmarks with `benchkit/benchplot`!
 
 ```go
 // Plot the results !
 p, _ := benchplot.PlotMemory(
     fmt.Sprintf("archive/tar memory usage for %n files of %s", n, humanize.Bytes(uint64(size))),
     "files in archive",
-    results,
+    memResults,
 )
 _ = p.Save(8, 6, "tar_benchplot.png")
 ```
 
-![Plot of the memory usage of ](exampleplot.png)
+![Example memory plot](example_memplot.png)
+
+
+```go
+// Plot the results !
+p, _ := benchplot.PlotTime(
+    fmt.Sprintf("archive/tar duration per file, for %n files of %s", n, humanize.Bytes(uint64(size))),
+    "files in archive",
+    timeResults,
+)
+_ = p.Save(8, 6, "tar_benchplot.png")
+```
+
+![Example time plot](example_timeplot.png)
+
 
 ## Usage
 
