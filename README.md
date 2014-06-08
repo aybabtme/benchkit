@@ -1,4 +1,4 @@
-I'm not yet ready to share this package, since I haven't had it reviewed yet. Suggestions are welcome in form of PRs or issues, or just ping me on IRC/Slack/Twitter.
+I'm not yet ready to publicize this package, since I haven't had it reviewed yet. Suggestions are welcome in form of PRs or issues, or just ping me on IRC/Slack/Twitter.
 
 # benchkit
 
