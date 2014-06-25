@@ -3,38 +3,66 @@ package benchplot
 import (
 	"code.google.com/p/plotinum/plot"
 	"code.google.com/p/plotinum/plotter"
+	"code.google.com/p/plotinum/plotutil"
 	"code.google.com/p/plotinum/vg"
 	"github.com/aybabtme/benchkit"
 	"github.com/dustin/go-humanize"
 	"image/color"
+	"runtime"
 )
+
+var darkIdx = 0
+
+func pickDark() color.Color {
+	defer func() { darkIdx = (darkIdx + 1) % len(plotutil.DarkColors) }()
+	return plotutil.DarkColors[darkIdx]
+}
+
+var softIdx = 0
+
+func pickSoft() color.Color {
+	defer func() { softIdx = (softIdx + 1) % len(plotutil.SoftColors) }()
+	return plotutil.SoftColors[softIdx]
+}
 
 var memlines = []struct {
 	Name   string
-	Filter func(mem benchkit.MemStep) float64
+	Filter func(mem *runtime.MemStats) float64
 	Width  float64
 	Color  color.Color
 }{
 	{
-		Name:   "current heap size (p50)",
-		Filter: func(mem benchkit.MemStep) float64 { return float64(mem.P(50).HeapAlloc) },
+		Name:   "current heap size",
+		Filter: func(mem *runtime.MemStats) float64 { return float64(mem.HeapAlloc) },
 		Width:  0.5,
-		Color:  color.RGBA{202, 0, 32, 255},
+		Color:  color.RGBA{69, 117, 180, 255},
 	},
 	{
-		Name:   "effective memory consumption (p50)",
-		Filter: func(mem benchkit.MemStep) float64 { return float64(mem.P(50).Sys - mem.P(50).HeapReleased) },
+		Name:   "total heap size",
+		Filter: func(mem *runtime.MemStats) float64 { return float64(mem.HeapSys) },
 		Width:  0.5,
-		Color:  color.RGBA{5, 113, 176, 255},
+		Color:  color.RGBA{215, 48, 39, 255},
+	},
+	{
+		Name:   "memory allocated from OS",
+		Filter: func(mem *runtime.MemStats) float64 { return float64(mem.Sys) },
+		Width:  0.5,
+		Color:  color.RGBA{254, 224, 144, 255},
+	},
+	{
+		Name:   "effective memory consumption",
+		Filter: func(mem *runtime.MemStats) float64 { return float64(mem.Sys - mem.HeapReleased) },
+		Width:  0.5,
+		Color:  color.RGBA{252, 141, 89, 255},
 	},
 }
 
 // PlotMemory will create a line graph of AfterEach measurements. The lines
 // plotted are:
-//
 //      current heap size            : HeapAlloc
+//      total heap size              : HeapSys
+//      memory allocated from OS     : Sys
 //      effective memory consumption : Sys - HeapReleased
-//
 // The Y axis is implicitely measured in Bytes.
 func PlotMemory(title, xLabel string, results *benchkit.MemResult, logscale bool) (*plot.Plot, error) {
 
@@ -45,65 +73,19 @@ func PlotMemory(title, xLabel string, results *benchkit.MemResult, logscale bool
 
 	p.Title.Text = title
 
+	p.Y.Tick.Marker = readableBytes(plot.LogTicks)
 	if logscale {
 		p.Y.Label.Text = "Memory usage (log10)"
-		p.Y.Tick.Marker = readableBytes(plot.LogTicks)
 		p.Y.Scale = plot.LogScale
-		p.Y.Min = 1.0
 	} else {
-		p.Y.Tick.Marker = readableBytes(p.Y.Tick.Marker)
 		p.Y.Label.Text = "Memory usage"
-		// p.Y.Min = 0.0
 	}
 	p.X.Label.Text = xLabel
 
 	p.Add(plotter.NewGrid())
 
-	// Scatters
-
-	heapAlloc, err := plotter.NewScatter(func() plotter.XYs {
-		var xys plotter.XYs
-		for i, step := range results.Each {
-			for _, mem := range step.PRange(1, 99) {
-				xys = append(xys, struct{ X, Y float64 }{
-					X: float64(i), Y: float64(mem.HeapAlloc),
-				})
-			}
-		}
-		return xys
-	}())
-	if err != nil {
-		return nil, err
-	}
-	heapAlloc.Color = color.RGBA{244, 165, 130, 255}
-	heapAlloc.GlyphStyle.Shape = plot.PlusGlyph{}
-	heapAlloc.GlyphStyle.Radius = vg.Points(0.5)
-	p.Add(heapAlloc)
-
-	effectUsage, err := plotter.NewScatter(func() plotter.XYs {
-		var xys plotter.XYs
-		for i, step := range results.Each {
-			for _, mem := range step.PRange(1, 99) {
-				xys = append(xys, struct{ X, Y float64 }{
-					X: float64(i), Y: float64(mem.Sys - mem.HeapReleased),
-				})
-			}
-		}
-		return xys
-	}())
-	if err != nil {
-		return nil, err
-	}
-
-	effectUsage.Color = color.RGBA{146, 197, 222, 255}
-	effectUsage.GlyphStyle.Shape = plot.PlusGlyph{}
-	effectUsage.GlyphStyle.Radius = vg.Points(0.5)
-	p.Add(effectUsage)
-
-	// Lines
-
 	for _, data := range memlines {
-		line, err := plotter.NewLine(mapResult(data.Filter, results.Each))
+		line, err := plotter.NewLine(mapResult(data.Filter, results.AfterEach))
 		if err != nil {
 			return nil, err
 		}
@@ -111,13 +93,12 @@ func PlotMemory(title, xLabel string, results *benchkit.MemResult, logscale bool
 		line.Color = data.Color
 		p.Add(line)
 		p.Legend.Add(data.Name, line)
-		p.Legend.Top = true
 	}
 
 	return p, nil
 }
 
-func mapResult(f func(mem benchkit.MemStep) float64, mems []benchkit.MemStep) plotter.XYs {
+func mapResult(f func(mem *runtime.MemStats) float64, mems []*runtime.MemStats) plotter.XYs {
 	xys := make(plotter.XYs, len(mems))
 	for i, mem := range mems {
 		xys[i].X = float64(i)

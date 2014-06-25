@@ -14,14 +14,13 @@ import (
 )
 
 func ExampleBench() {
-	mem := benchkit.Bench(benchkit.Memory(10, 10)).Each(func(each benchkit.BenchEach) {
-		for repeat := 0; repeat < 10; repeat++ {
-			for i := 0; i < 10; i++ {
-				each.Before(i)
-				// do stuff
-				each.After(i)
-			}
+	mem := benchkit.Bench(benchkit.Memory(10)).Each(func(each benchkit.BenchEach) {
+		for i := 0; i < 10; i++ {
+			each.Before(i)
+			// do stuff
+			each.After(i)
 		}
+
 	}).(*benchkit.MemResult)
 
 	_ = mem
@@ -42,11 +41,10 @@ func ExampleBench() {
 
 func ExampleMemory() {
 	n := 5
-	m := 10
 	size := 1000000
 	buf := bytes.NewBuffer(nil)
 
-	memkit, results := benchkit.Memory(n, m)
+	memkit, results := benchkit.Memory(n)
 
 	memkit.Setup()
 	files := GenTarFiles(n, size)
@@ -54,17 +52,14 @@ func ExampleMemory() {
 
 	each := memkit.Each()
 
-	for repeat := 0; repeat < m; repeat++ {
-		buf.Reset()
-		tarw := tar.NewWriter(buf)
-		for i, file := range files {
-			each.Before(i)
-			_ = tarw.WriteHeader(file.TarHeader())
-			_, _ = tarw.Write(file.Data())
-			each.After(i)
-		}
-		_ = tarw.Close()
+	tarw := tar.NewWriter(buf)
+	for i, file := range files {
+		each.Before(i)
+		_ = tarw.WriteHeader(file.TarHeader())
+		_, _ = tarw.Write(file.Data())
+		each.After(i)
 	}
+	_ = tarw.Close()
 
 	memkit.Teardown()
 
@@ -75,8 +70,8 @@ func ExampleMemory() {
 	for i := 0; i < results.N; i++ {
 		fmt.Printf("  %d  before=%s  after=%s\n",
 			i,
-			effectMem(&results.Each[i].Avg),
-			effectMem(&results.Each[i].Avg),
+			effectMem(results.BeforeEach[i]),
+			effectMem(results.AfterEach[i]),
 		)
 	}
 	fmt.Printf("teardown=%s\n", effectMem(results.Teardown))
@@ -84,9 +79,9 @@ func ExampleMemory() {
 	// Output:
 	// setup=4.1MB
 	// starting=9.8MB
-	//   0  before=11MB  after=11MB
-	//   1  before=13MB  after=13MB
-	//   2  before=19MB  after=19MB
+	//   0  before=9.8MB  after=11MB
+	//   1  before=11MB  after=13MB
+	//   2  before=13MB  after=19MB
 	//   3  before=19MB  after=19MB
 	//   4  before=19MB  after=19MB
 	// teardown=29MB
