@@ -50,7 +50,6 @@ func ExampleMemory() {
 
 	memkit.Setup()
 	files := GenTarFiles(n, size)
-	memkit.Starting()
 
 	each := memkit.Each()
 
@@ -83,7 +82,7 @@ func ExampleMemory() {
 
 	// Output:
 	// setup=4.1MB
-	// starting=9.8MB
+	// starting=0B
 	//   0  before=11MB  after=11MB
 	//   1  before=13MB  after=13MB
 	//   2  before=19MB  after=19MB
