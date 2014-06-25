@@ -72,10 +72,13 @@ func PlotMemory(title, xLabel string, results *benchkit.MemResult, logscale bool
 	}
 
 	p.Title.Text = title
-	p.Y.Label.Text = "Memory usage (log10)"
+
 	p.Y.Tick.Marker = readableBytes(plot.LogTicks)
 	if logscale {
+		p.Y.Label.Text = "Memory usage (log10)"
 		p.Y.Scale = plot.LogScale
+	} else {
+		p.Y.Label.Text = "Memory usage"
 	}
 	p.X.Label.Text = xLabel
 

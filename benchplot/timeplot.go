@@ -50,9 +50,11 @@ func PlotTime(title, xLabel string, results *benchkit.TimeResult, logscale bool)
 	}
 
 	p.Title.Text = title
-	p.Y.Label.Text = "Duration (log10)"
 	if logscale {
+		p.Y.Label.Text = "Duration (log10)"
 		p.Y.Scale = plot.LogScale
+	} else {
+		p.Y.Label.Text = "Duration"
 	}
 	p.Y.Tick.Marker = readableDuration(plot.LogTicks)
 	p.X.Label.Text = xLabel
