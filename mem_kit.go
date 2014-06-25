@@ -116,21 +116,13 @@ type memEach struct {
 }
 
 func (m *memEach) Before(id int) {
-
 	mem := &runtime.MemStats{}
 	runtime.ReadMemStats(mem)
 	m.beforeEach[id] = append(m.beforeEach[id], mem)
-
-	start := m.beforeEach[0][len(m.beforeEach[0])-1]
-	// dirty, changes `mem` in place after having put it in the slice
-	sub(mem, start, mem)
 }
 func (m *memEach) After(id int) {
-	start := m.beforeEach[0][len(m.beforeEach[0])-1]
-
 	mem := &runtime.MemStats{}
 	runtime.ReadMemStats(mem)
-	sub(mem, start, mem)
 	m.afterEach[id] = append(m.afterEach[id], mem)
 }
 
@@ -142,12 +134,11 @@ func Memory(n, m int) (BenchKit, *MemResult) {
 		setup:    &runtime.MemStats{},
 		start:    &runtime.MemStats{},
 		teardown: &runtime.MemStats{},
-		results:  &MemResult{},
-	}
-
-	bench.each = &memEach{
-		beforeEach: make([][]*runtime.MemStats, n),
-		afterEach:  make([][]*runtime.MemStats, n),
+		each: &memEach{
+			beforeEach: make([][]*runtime.MemStats, n),
+			afterEach:  make([][]*runtime.MemStats, n),
+		},
+		results: &MemResult{},
 	}
 
 	for i := 0; i < n; i++ {
