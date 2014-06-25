@@ -45,6 +45,7 @@ func ExamplePlotTime() {
 		fmt.Sprintf("archive/tar time usage for %d files, %s each, over %d measurements", n, humanize.Bytes(uint64(size)), times),
 		"Files in archive",
 		results,
+		true,
 	)
 	_ = p.Save(6, 4, "tar_timeplot.svg")
 
@@ -79,6 +80,7 @@ func ExamplePlotTime_bench() {
 		fmt.Sprintf("archive/tar time usage for %d files, %s each, over %d measurements", n, humanize.Bytes(uint64(size)), times),
 		"Files in archive",
 		results,
+		true,
 	)
 	_ = p.Save(6, 4, "tar_timeplot.png")
 
@@ -115,6 +117,7 @@ func ExamplePlotMemory() {
 		fmt.Sprintf("archive/tar memory usage for %d files, %s each", n, humanize.Bytes(uint64(size))),
 		"Files in archive",
 		results,
+		true,
 	)
 	_ = p.Save(6, 4, "tar_memplot.svg")
 
@@ -147,6 +150,7 @@ func ExamplePlotMemory_bench() {
 		fmt.Sprintf("archive/tar memory usage for %d files, %s each", n, humanize.Bytes(uint64(size))),
 		"Files in archive",
 		results,
+		true,
 	)
 	_ = p.Save(6, 4, "tar_memplot.png")
 

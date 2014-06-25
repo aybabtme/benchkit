@@ -35,25 +35,25 @@ var memlines = []struct {
 		Name:   "current heap size",
 		Filter: func(mem *runtime.MemStats) float64 { return float64(mem.HeapAlloc) },
 		Width:  0.5,
-		Color:  color.RGBA{44, 123, 182, 255},
+		Color:  color.RGBA{69, 117, 180, 255},
 	},
 	{
 		Name:   "total heap size",
 		Filter: func(mem *runtime.MemStats) float64 { return float64(mem.HeapSys) },
 		Width:  0.5,
-		Color:  color.RGBA{171, 217, 233, 255},
+		Color:  color.RGBA{215, 48, 39, 255},
 	},
 	{
 		Name:   "memory allocated from OS",
 		Filter: func(mem *runtime.MemStats) float64 { return float64(mem.Sys) },
 		Width:  0.5,
-		Color:  color.RGBA{253, 174, 97, 255},
+		Color:  color.RGBA{254, 224, 144, 255},
 	},
 	{
 		Name:   "effective memory consumption",
 		Filter: func(mem *runtime.MemStats) float64 { return float64(mem.Sys - mem.HeapReleased) },
 		Width:  0.5,
-		Color:  color.RGBA{215, 25, 28, 255},
+		Color:  color.RGBA{252, 141, 89, 255},
 	},
 }
 
@@ -64,7 +64,7 @@ var memlines = []struct {
 //      memory allocated from OS     : Sys
 //      effective memory consumption : Sys - HeapReleased
 // The Y axis is implicitely measured in Bytes.
-func PlotMemory(title, xLabel string, results *benchkit.MemResult) (*plot.Plot, error) {
+func PlotMemory(title, xLabel string, results *benchkit.MemResult, logscale bool) (*plot.Plot, error) {
 
 	p, err := plot.New()
 	if err != nil {
@@ -74,7 +74,9 @@ func PlotMemory(title, xLabel string, results *benchkit.MemResult) (*plot.Plot, 
 	p.Title.Text = title
 	p.Y.Label.Text = "Memory usage (log10)"
 	p.Y.Tick.Marker = readableBytes(plot.LogTicks)
-	p.Y.Scale = plot.LogScale
+	if logscale {
+		p.Y.Scale = plot.LogScale
+	}
 	p.X.Label.Text = xLabel
 
 	p.Add(plotter.NewGrid())
