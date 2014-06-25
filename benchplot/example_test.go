@@ -150,7 +150,7 @@ func ExamplePlotMemory_bench() {
 		fmt.Sprintf("archive/tar memory usage for %d files, %s each", n, humanize.Bytes(uint64(size))),
 		"Files in archive",
 		results,
-		true,
+		false,
 	)
 	_ = p.Save(6, 4, "tar_memplot.png")
 
