@@ -53,13 +53,17 @@ func PlotTime(title, xLabel string, results *benchkit.TimeResult, logscale bool)
 	if logscale {
 		p.Y.Label.Text = "Duration (log10)"
 		p.Y.Scale = plot.LogScale
+		p.Y.Min = 1.0
 	} else {
 		p.Y.Label.Text = "Duration"
+		p.Y.Min = 0.0
 	}
 	p.Y.Tick.Marker = readableDuration(plot.LogTicks)
 	p.X.Label.Text = xLabel
 
 	p.Add(plotter.NewGrid())
+
+	// Scatters
 
 	scatter, err := plotter.NewScatter(func() plotter.XYs {
 		var xys plotter.XYs
@@ -79,6 +83,8 @@ func PlotTime(title, xLabel string, results *benchkit.TimeResult, logscale bool)
 	scatter.GlyphStyle.Shape = plot.PlusGlyph{}
 	scatter.GlyphStyle.Radius = vg.Points(1)
 	p.Add(scatter)
+
+	// Lines
 
 	for _, data := range timelines {
 		line, err := plotter.NewLine(mapSteps(data.Filter, results.Each))
