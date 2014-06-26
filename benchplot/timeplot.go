@@ -18,27 +18,27 @@ var timelines = []struct {
 	{
 		Name:   "p50",
 		Filter: func(t benchkit.TimeStep) float64 { return float64(t.P(50)) },
-		Width:  1,
-		Color:  color.RGBA{69, 117, 180, 255},
+		Width:  0.5,
+		Color:  color.RGBA{43, 140, 190, 255},
 	},
-	{
-		Name:   "p90",
-		Filter: func(t benchkit.TimeStep) float64 { return float64(t.P(90)) },
-		Width:  1,
-		Color:  color.RGBA{252, 141, 89, 255},
-	},
-	{
-		Name:   "p99",
-		Filter: func(t benchkit.TimeStep) float64 { return float64(t.P(99)) },
-		Width:  1,
-		Color:  color.RGBA{215, 48, 39, 255},
-	},
-	{
-		Name:   "average",
-		Filter: func(t benchkit.TimeStep) float64 { return float64(t.Avg) },
-		Width:  1,
-		Color:  color.RGBA{254, 224, 144, 255},
-	},
+	// {
+	// 	Name:   "p90",
+	// 	Filter: func(t benchkit.TimeStep) float64 { return float64(t.P(90)) },
+	// 	Width:  1,
+	// 	Color:  color.RGBA{252, 141, 89, 255},
+	// },
+	// {
+	// 	Name:   "p99",
+	// 	Filter: func(t benchkit.TimeStep) float64 { return float64(t.P(99)) },
+	// 	Width:  0.3,
+	// 	Color:  color.RGBA{215, 48, 39, 255},
+	// },
+	// {
+	// 	Name:   "average",
+	// 	Filter: func(t benchkit.TimeStep) float64 { return float64(t.Avg) },
+	// 	Width:  1,
+	// 	Color:  color.RGBA{254, 224, 144, 255},
+	// },
 }
 
 // PlotTime does stuff.
@@ -53,10 +53,12 @@ func PlotTime(title, xLabel string, results *benchkit.TimeResult, logscale bool)
 	if logscale {
 		p.Y.Label.Text = "Duration (log10)"
 		p.Y.Scale = plot.LogScale
+		p.Y.Tick.Marker = readableDuration(plot.LogTicks)
 	} else {
 		p.Y.Label.Text = "Duration"
+		p.Y.Tick.Marker = readableDuration(p.Y.Tick.Marker)
 	}
-	p.Y.Tick.Marker = readableDuration(plot.LogTicks)
+
 	p.X.Label.Text = xLabel
 
 	p.Add(plotter.NewGrid())
@@ -75,7 +77,7 @@ func PlotTime(title, xLabel string, results *benchkit.TimeResult, logscale bool)
 	if err != nil {
 		return nil, err
 	}
-	scatter.Color = color.RGBA{224, 243, 248, 255}
+	scatter.Color = color.RGBA{166, 189, 219, 255}
 	scatter.GlyphStyle.Shape = plot.PlusGlyph{}
 	scatter.GlyphStyle.Radius = vg.Points(1)
 	p.Add(scatter)

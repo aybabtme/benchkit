@@ -77,14 +77,14 @@ func ExampleMemory() {
 	fmt.Printf("teardown=%s\n", effectMem(results.Teardown))
 
 	// Output:
-	// setup=4.1MB
-	// starting=9.8MB
-	//   0  before=9.8MB  after=11MB
-	//   1  before=11MB  after=13MB
-	//   2  before=13MB  after=19MB
-	//   3  before=19MB  after=19MB
-	//   4  before=19MB  after=19MB
-	// teardown=29MB
+	// setup=4.3MB
+	// starting=5.6MB
+	//   0  before=5.6MB  after=6.7MB
+	//   1  before=6.7MB  after=8.9MB
+	//   2  before=8.9MB  after=14MB
+	//   3  before=14MB  after=14MB
+	//   4  before=14MB  after=14MB
+	// teardown=25MB
 }
 
 func effectMem(mem *runtime.MemStats) string {

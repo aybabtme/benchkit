@@ -36,6 +36,16 @@ func (m *memBenchKit) Teardown() {
 	m.results.Teardown = m.teardown
 	m.results.BeforeEach = m.each.beforeEach
 	m.results.AfterEach = m.each.afterEach
+
+	sub(m.start, m.setup, m.start)
+	sub(m.teardown, m.setup, m.teardown)
+
+	for _, each := range m.results.BeforeEach {
+		sub(each, m.results.Setup, each)
+	}
+	for _, each := range m.results.AfterEach {
+		sub(each, m.results.Setup, each)
+	}
 }
 
 type memEach struct {
@@ -67,4 +77,41 @@ func Memory(n int) (BenchKit, *MemResult) {
 	}
 
 	return bench, bench.results
+}
+
+func sub(a, b, out *runtime.MemStats) {
+	out.Alloc = a.Alloc - b.Alloc
+	out.TotalAlloc = a.TotalAlloc - b.TotalAlloc
+	out.Sys = a.Sys - b.Sys
+	out.Lookups = a.Lookups - b.Lookups
+	out.Mallocs = a.Mallocs - b.Mallocs
+	out.Frees = a.Frees - b.Frees
+	out.HeapAlloc = a.HeapAlloc - b.HeapAlloc
+	out.HeapSys = a.HeapSys - b.HeapSys
+	out.HeapIdle = a.HeapIdle - b.HeapIdle
+	out.HeapInuse = a.HeapInuse - b.HeapInuse
+	out.HeapReleased = a.HeapReleased - b.HeapReleased
+	out.HeapObjects = a.HeapObjects - b.HeapObjects
+	out.StackInuse = a.StackInuse - b.StackInuse
+	out.StackSys = a.StackSys - b.StackSys
+	out.MSpanInuse = a.MSpanInuse - b.MSpanInuse
+	out.MSpanSys = a.MSpanSys - b.MSpanSys
+	out.MCacheInuse = a.MCacheInuse - b.MCacheInuse
+	out.MCacheSys = a.MCacheSys - b.MCacheSys
+	out.BuckHashSys = a.BuckHashSys - b.BuckHashSys
+	out.GCSys = a.GCSys - b.GCSys
+	out.OtherSys = a.OtherSys - b.OtherSys
+	out.NextGC = a.NextGC - b.NextGC
+	out.LastGC = a.LastGC - b.LastGC
+	out.PauseTotalNs = a.PauseTotalNs - b.PauseTotalNs
+
+	for i := range out.PauseNs {
+		out.PauseNs[i] = a.PauseNs[i] - b.PauseNs[i]
+	}
+
+	for i := range out.BySize {
+		out.BySize[i].Size = a.BySize[i].Size - b.BySize[i].Size
+		out.BySize[i].Mallocs = a.BySize[i].Mallocs - b.BySize[i].Mallocs
+		out.BySize[i].Frees = a.BySize[i].Frees - b.BySize[i].Frees
+	}
 }
