@@ -4,13 +4,14 @@ import (
 	"archive/tar"
 	"bytes"
 	"fmt"
-	"github.com/aybabtme/benchkit"
-	"github.com/dustin/go-humanize"
-	"github.com/dustin/randbo"
 	"os"
 	"runtime"
 	"strconv"
 	"time"
+
+	"github.com/aybabtme/benchkit"
+	"github.com/dustin/go-humanize"
+	"github.com/dustin/randbo"
 )
 
 func ExamplePlotTime() {
@@ -47,7 +48,7 @@ func ExamplePlotTime() {
 		results,
 		true,
 	)
-	_ = p.Save(6, 4, "tar_timeplot.svg")
+	_ = p.Save(960, 720, "tar_timeplot.svg")
 
 	// Output:
 	//
@@ -82,7 +83,7 @@ func ExamplePlotTime_bench() {
 		results,
 		true,
 	)
-	_ = p.Save(6, 4, "tar_timeplot.png")
+	_ = p.Save(960, 720, "tar_timeplot.png")
 
 	// Output:
 	//
@@ -119,7 +120,7 @@ func ExamplePlotMemory() {
 		results,
 		false,
 	)
-	_ = p.Save(6, 4, "tar_memplot.svg")
+	_ = p.Save(960, 720, "tar_memplot.svg")
 
 	// Output:
 	//
@@ -152,7 +153,7 @@ func ExamplePlotMemory_bench() {
 		results,
 		false,
 	)
-	_ = p.Save(6, 4, "tar_memplot.png")
+	_ = p.Save(960, 720, "tar_memplot.png")
 
 	// Output:
 	//
@@ -163,7 +164,7 @@ func effectMem(mem *runtime.MemStats) string {
 	return humanize.Bytes(effectMem)
 }
 
-var rand = randbo.NewFast()
+var rand = randbo.New()
 
 func GenTarFiles(n, size int) []TarFile {
 	files := make([]TarFile, n)

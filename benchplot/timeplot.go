@@ -1,12 +1,14 @@
 package benchplot
 
 import (
-	"code.google.com/p/plotinum/plot"
-	"code.google.com/p/plotinum/plotter"
-	"code.google.com/p/plotinum/vg"
-	"github.com/aybabtme/benchkit"
 	"image/color"
 	"time"
+
+	"github.com/aybabtme/benchkit"
+	"gonum.org/v1/plot"
+	"gonum.org/v1/plot/plotter"
+	"gonum.org/v1/plot/vg"
+	"gonum.org/v1/plot/vg/draw"
 )
 
 var timelines = []struct {
@@ -52,8 +54,8 @@ func PlotTime(title, xLabel string, results *benchkit.TimeResult, logscale bool)
 	p.Title.Text = title
 	if logscale {
 		p.Y.Label.Text = "Duration (log10)"
-		p.Y.Scale = plot.LogScale
-		p.Y.Tick.Marker = readableDuration(plot.LogTicks)
+		p.Y.Scale = plot.LogScale{}
+		p.Y.Tick.Marker = readableDuration(plot.LogTicks{})
 	} else {
 		p.Y.Label.Text = "Duration"
 		p.Y.Tick.Marker = readableDuration(p.Y.Tick.Marker)
@@ -78,7 +80,7 @@ func PlotTime(title, xLabel string, results *benchkit.TimeResult, logscale bool)
 		return nil, err
 	}
 	scatter.Color = color.RGBA{166, 189, 219, 255}
-	scatter.GlyphStyle.Shape = plot.PlusGlyph{}
+	scatter.GlyphStyle.Shape = draw.PlusGlyph{}
 	scatter.GlyphStyle.Radius = vg.Points(1)
 	p.Add(scatter)
 
@@ -105,13 +107,13 @@ func mapSteps(f func(step benchkit.TimeStep) float64, steps []benchkit.TimeStep)
 	return xys
 }
 
-func readableDuration(marker func(min, max float64) []plot.Tick) func(float64, float64) []plot.Tick {
-	return func(min, max float64) []plot.Tick {
+func readableDuration(marker plot.Ticker) plot.Ticker {
+	return tickerFunc(func(min, max float64) []plot.Tick {
 		var out []plot.Tick
-		for _, t := range marker(min, max) {
+		for _, t := range marker.Ticks(min, max) {
 			t.Label = time.Duration(t.Value).String()
 			out = append(out, t)
 		}
 		return out
-	}
+	})
 }

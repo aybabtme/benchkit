@@ -4,13 +4,14 @@ import (
 	"archive/tar"
 	"bytes"
 	"fmt"
-	"github.com/aybabtme/benchkit"
-	"github.com/dustin/go-humanize"
-	"github.com/dustin/randbo"
 	"os"
 	"runtime"
 	"strconv"
 	"time"
+
+	"github.com/aybabtme/benchkit"
+	"github.com/dustin/go-humanize"
+	"github.com/dustin/randbo"
 )
 
 func ExampleBench() {
@@ -77,14 +78,14 @@ func ExampleMemory() {
 	fmt.Printf("teardown=%s\n", effectMem(results.Teardown))
 
 	// Output:
-	// setup=4.3MB
-	// starting=5.6MB
-	//   0  before=5.6MB  after=6.7MB
-	//   1  before=6.7MB  after=8.9MB
-	//   2  before=8.9MB  after=14MB
-	//   3  before=14MB  after=14MB
-	//   4  before=14MB  after=14MB
-	// teardown=25MB
+	// setup=2.0 MB
+	// starting=6.9 MB
+	//   0  before=6.9 MB  after=8.0 MB
+	//   1  before=8.0 MB  after=10 MB
+	//   2  before=10 MB  after=15 MB
+	//   3  before=15 MB  after=15 MB
+	//   4  before=15 MB  after=15 MB
+	// teardown=26 MB
 }
 
 func effectMem(mem *runtime.MemStats) string {
@@ -92,7 +93,7 @@ func effectMem(mem *runtime.MemStats) string {
 	return humanize.Bytes(effectMem)
 }
 
-var rand = randbo.NewFast()
+var rand = randbo.New()
 
 func GenTarFiles(n, size int) []TarFile {
 	files := make([]TarFile, n)
