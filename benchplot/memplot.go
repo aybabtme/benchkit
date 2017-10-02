@@ -1,14 +1,15 @@
 package benchplot
 
 import (
-	"code.google.com/p/plotinum/plot"
-	"code.google.com/p/plotinum/plotter"
-	"code.google.com/p/plotinum/plotutil"
-	"code.google.com/p/plotinum/vg"
-	"github.com/aybabtme/benchkit"
-	"github.com/dustin/go-humanize"
 	"image/color"
 	"runtime"
+
+	"github.com/aybabtme/benchkit"
+	"github.com/aybabtme/humanize"
+	"gonum.org/v1/plot"
+	"gonum.org/v1/plot/plotter"
+	"gonum.org/v1/plot/plotutil"
+	"gonum.org/v1/plot/vg"
 )
 
 var darkIdx = 0
@@ -75,8 +76,9 @@ func PlotMemory(title, xLabel string, results *benchkit.MemResult, logscale bool
 
 	if logscale {
 		p.Y.Label.Text = "Memory usage (log10)"
-		p.Y.Scale = plot.LogScale
-		p.Y.Tick.Marker = readableBytes(plot.LogTicks)
+
+		p.Y.Scale = plot.LogScale{}
+		p.Y.Tick.Marker = readableBytes(plot.LogTicks{})
 	} else {
 		p.Y.Label.Text = "Memory usage"
 		p.Y.Tick.Marker = readableBytes(p.Y.Tick.Marker)
@@ -108,13 +110,17 @@ func mapResult(f func(mem *runtime.MemStats) float64, mems []*runtime.MemStats) 
 	return xys
 }
 
-func readableBytes(marker func(min, max float64) []plot.Tick) func(float64, float64) []plot.Tick {
-	return func(min, max float64) []plot.Tick {
+type tickerFunc func(min, max float64) []plot.Tick
+
+func (tkfn tickerFunc) Ticks(min, max float64) []plot.Tick { return tkfn(min, max) }
+
+func readableBytes(marker plot.Ticker) plot.Ticker {
+	return tickerFunc(func(min, max float64) []plot.Tick {
 		var out []plot.Tick
-		for _, t := range marker(min, max) {
+		for _, t := range marker.Ticks(min, max) {
 			t.Label = humanize.Bytes(uint64(t.Value))
 			out = append(out, t)
 		}
 		return out
-	}
+	})
 }
