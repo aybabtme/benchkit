@@ -60,17 +60,16 @@ var memlines = []struct {
 
 // PlotMemory will create a line graph of AfterEach measurements. The lines
 // plotted are:
-//      current heap size            : HeapAlloc
-//      total heap size              : HeapSys
-//      memory allocated from OS     : Sys
-//      effective memory consumption : Sys - HeapReleased
+//
+//	current heap size            : HeapAlloc
+//	total heap size              : HeapSys
+//	memory allocated from OS     : Sys
+//	effective memory consumption : Sys - HeapReleased
+//
 // The Y axis is implicitely measured in Bytes.
 func PlotMemory(title, xLabel string, results *benchkit.MemResult, logscale bool) (*plot.Plot, error) {
 
-	p, err := plot.New()
-	if err != nil {
-		return nil, err
-	}
+	p := plot.New()
 
 	p.Title.Text = title
 

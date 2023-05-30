@@ -46,10 +46,7 @@ var timelines = []struct {
 // PlotTime does stuff.
 func PlotTime(title, xLabel string, results *benchkit.TimeResult, logscale bool) (*plot.Plot, error) {
 
-	p, err := plot.New()
-	if err != nil {
-		return nil, err
-	}
+	p := plot.New()
 
 	p.Title.Text = title
 	if logscale {
